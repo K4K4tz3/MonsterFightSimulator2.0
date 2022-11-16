@@ -40,8 +40,11 @@ namespace MonsterFightSimulator2._0
             {
                 defender.health -= damage;
                 PrintText(new List<string>() { $"The {this.type} dealt {damage} damge.", $"The {defender.type} remains with {defender.health} health." });
+                Console.WriteLine("");
+                return;
             }
             PrintText(new List<string>() { $"The {this.type} isn't strong enough to deal damage." });
+            Console.WriteLine("");
             return;
         }
         internal void PrintText(List<string> text)

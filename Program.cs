@@ -12,6 +12,7 @@ namespace MonsterFightSimulator2._0
             int rounds = 0;
             int roundLimit = 100;
             bool gameLoop = true;
+            bool showProcess = false;
 
             #region gameLoop
             PrintText(new List<string>() { "Dear Traveler, welcome to the Arena of Beasts.", 
@@ -25,9 +26,11 @@ namespace MonsterFightSimulator2._0
             {
                 CreateCharacter("first", out monsterOne);
                 CreateCharacter("second", out monsterTwo);
+                PrintText("Do you wanna see the fight or do you just want to see the results? y/n");
+                showProcess = CheckInputYN(Console.ReadLine());
                 while(CheckState(monsterOne, monsterTwo, rounds, roundLimit))
                 {
-                    Fight(monsterOne, monsterTwo, ref rounds);
+                    Fight(monsterOne, monsterTwo, ref rounds, showProcess);
                 }
                 PrintText("Do you want to play another round? y/n");
                 gameLoop = CheckInputYN(Console.ReadLine());
@@ -41,8 +44,8 @@ namespace MonsterFightSimulator2._0
 
             PrintText($"Choose your {character} monster:");
             for (int i = 0; i < monsterTypes.Count; i++) PrintText($"{i + 1}. {monsterTypes[i]}");
-            CheckInput(Console.ReadLine(), (1, monsterTypes.Count), out float type);
-            monsterValues.type = (MonsterType)type;
+            CheckInput(Console.ReadLine(), (1, monsterTypes.Count), out int type);
+            monsterValues.type = monsterTypes[type - 1];
             monsterTypes.Remove((MonsterType)type);
 
             PrintText(new List<string>() { "Please set the value of its attributes. ","Please use only values between 1 and 100:" });
@@ -58,7 +61,7 @@ namespace MonsterFightSimulator2._0
             Thread.Sleep(500);
             Console.Clear();
         }
-        internal static void Fight(Monster mOne, Monster mTwo, ref int rounds)
+        internal static void Fight(Monster mOne, Monster mTwo, ref int rounds, bool showProcess)
         {
             if(rounds == 0)
             {
@@ -73,8 +76,16 @@ namespace MonsterFightSimulator2._0
                     mTwo.turnState = 1;
                 }
             }
-            if ((rounds % 2) == mOne.turnState) mOne.Attack(mTwo);
-            else if ((rounds % 2) == mTwo.turnState) mTwo.Attack(mOne);
+            if (showProcess)
+            {
+                if ((rounds % 2) == mOne.turnState) mOne.AttackPlus(mTwo);
+                else if ((rounds % 2) == mTwo.turnState) mTwo.AttackPlus(mOne);
+            }
+            else
+            {
+                if ((rounds % 2) == mOne.turnState) mOne.Attack(mTwo);
+                else if ((rounds % 2) == mTwo.turnState) mTwo.Attack(mOne);
+            }
             rounds++;
         }
         internal static bool CheckState(Monster mOne, Monster mTwo, int rounds, int roundLimit)
@@ -93,8 +104,8 @@ namespace MonsterFightSimulator2._0
         }
         internal static bool CheckInputYN(string Input)
         {
-            List<string> yes = new List<string>();
-            List<string> no = new List<string>();
+            List<string> yes = new List<string>() { "y", "Y", "yes", "Yes"};
+            List<string> no = new List<string>() { "n", "N", "no", "No" };
             while (true)
             {
                 if (yes.Contains(Input)) return true;
@@ -120,6 +131,22 @@ namespace MonsterFightSimulator2._0
                 Input = Console.ReadLine();
             }
         }
+        internal static void CheckInput(string Input, (int min, int max) range, out int output)
+        {
+            while (true)
+            {
+                if (Int32.TryParse(Input, out int input))
+                {
+                    if (range.min <= input || input <= range.max)
+                    {
+                        output = input;
+                        return;
+                    }
+                }
+                PrintText(new List<string>() { "Your input was not acceptable.", "Please enter a valid number." });
+                Input = Console.ReadLine();
+            }
+        }
         internal static void PrintText(List<string> text)
         {
             // This method just prints each letter of a text seperatly with a small break time in between
@@ -130,7 +157,7 @@ namespace MonsterFightSimulator2._0
                 foreach (char letter in line)
                 {
                     Console.Write(letter);
-                    Thread.Sleep(100);
+                    //Thread.Sleep(100);
                 }
                 Thread.Sleep(600);
                 Console.WriteLine();
@@ -144,7 +171,7 @@ namespace MonsterFightSimulator2._0
             foreach (char letter in text)
             {
                 Console.Write(letter);
-                Thread.Sleep(100);
+                //Thread.Sleep(100);
             }
             Thread.Sleep(600);
             if(newLine) Console.WriteLine();
